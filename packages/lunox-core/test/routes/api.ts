@@ -84,5 +84,6 @@ function handleUpload(req: Request) {
     count: req.files("file").length,
     foo: req.input("foo"),
     bus: req.get("bus"),
+    address: req.get("address")
   });
 }

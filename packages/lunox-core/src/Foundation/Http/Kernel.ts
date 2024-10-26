@@ -117,6 +117,18 @@ class Kernel {
           return [key, value];
         }),
       );
+
+      const parsedFields: Record<string, any> = {};
+      Object.keys(req.query).forEach((key) => {
+        const match = key.match(/^([^[]+)\[([^\]]+)\]$/);
+        if (match) {
+          const [_, parent, child] = match;
+          if (!parsedFields[parent]) parsedFields[parent] = {};
+          parsedFields[parent][child] = req.query[key];
+          parsedFields[key] = undefined;
+        }
+      });
+      req.query = { ...req.query, ...parsedFields };
       // wrap http context inside AsyncLocaleStorage
       return Als.run(new Map(), async () => {
         try {
@@ -510,6 +522,18 @@ const parseFormData = async (req: ServerRequest, request: Request) => {
       }),
     ),
   );
+
+  const parsedFields: Record<string, any> = {};
+  Object.keys(request.all()).forEach((key) => {
+    const match = key.match(/^([^[]+)\[([^\]]+)\]$/);
+    if (match) {
+      const [_, parent, child] = match;
+      if (!parsedFields[parent]) parsedFields[parent] = {};
+      parsedFields[parent][child] = request.get(key);
+      parsedFields[key] = undefined;
+    }
+  });
+  request.merge(parsedFields);
 
   const uploadedFiles = Object.keys(files).reduce(
     (prev, key) => {
