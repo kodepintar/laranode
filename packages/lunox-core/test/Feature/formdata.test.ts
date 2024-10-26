@@ -9,9 +9,11 @@ describe("Formdata Testing", () => {
       .post("/api/upload?foo[]=bar")
       .type("form")
       .field("bus", "bas")
+      .field("address[city]", "jakarta")
       .attach("file", "./package.json");
     expect(res.body.foo).toStrictEqual(["bar"]);
     expect(res.body.bus).toStrictEqual("bas");
+    expect(res.body.address).toStrictEqual({city:"jakarta"});
     expect(JSON.parse(res.body.file).name).toBe("@lunoxjs/core");
     expect(JSON.parse(res.body.files).name).toBe("@lunoxjs/core");
     expect(res.body.count).toBe(1);
@@ -42,8 +44,9 @@ describe("Formdata Testing", () => {
   });
 
   test("json should not parsed as formdata", async () => {
-    const res = await agent.put("/api/upload?bus[]=bas").send({ foo: ["bar"] });
+    const res = await agent.put("/api/upload?bus[]=bas&address[city]=medan").send({ foo: ["bar"] });
     expect(res.body.foo).toStrictEqual(["bar"]);
+    expect(res.body.address).toStrictEqual({city: "medan"});
     expect(res.body.bus).toStrictEqual(["bas"]);
   });
 });
