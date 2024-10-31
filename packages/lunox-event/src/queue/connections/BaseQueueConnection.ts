@@ -12,14 +12,18 @@ import Dispatchable from "../../Dispatchable";
 import { Application, RuntimeException } from "@lunoxjs/core";
 import { Class } from "@lunoxjs/core/contracts";
 import dayjs from "dayjs";
-import QueueManager from "../../QueueManager";
-import Queue from "../../facades/Queue";
+import JobProcessing from "../../events/JobProcessing";
+import JobProcessed from "../../events/JobProcessed";
+import JobFailed from "../../events/JobFailed";
 
-export default abstract class BaseQueueConnection implements QueueConnection {
+export default abstract class BaseQueueConnection<
+  C extends Record<string, any> = QueueDatabaseConnection,
+> implements QueueConnection
+{
   constructor(
     protected app: Application,
-    protected config: QueueDatabaseConnection,
-  ) { }
+    protected config: C,
+  ) {}
 
   public async add(
     job: Dispatchable,
@@ -52,6 +56,7 @@ export default abstract class BaseQueueConnection implements QueueConnection {
       queueJob.reserved_at = new Date();
       queueJob.attempts++;
       await this.updateJob(queueJob);
+      await JobProcessing.dispatch(queue, queueJob);
       if (payload.isListener) {
         await job.handle(...payload.args);
       } else {
@@ -68,20 +73,24 @@ export default abstract class BaseQueueConnection implements QueueConnection {
           await this.updateJob(queueJob);
         } else {
           // if attempts is greater than max retries then mark job as failed
-          await this.storeFailedJob({
+          const failedJob = {
             queue,
             failed_at: new Date(),
             payload: queueJob?.payload,
             exception: e.stack || e.message,
-          })
+          };
+          await this.storeFailedJob(failedJob);
           await this.removeJob(queueJob);
           try {
-            job?.failed?.(e);
+            await job?.failed?.(e);
+            await JobFailed.dispatch(queue, queueJob, e);
           } catch (e) {
             //pass
           }
         }
       }
+    } finally {
+      await JobProcessed.dispatch(queue, queueJob);
     }
   }
 
@@ -90,7 +99,12 @@ export default abstract class BaseQueueConnection implements QueueConnection {
   ): Promise<void>;
   protected abstract removeJob(queueJob: QueueJobSchema): Promise<void>;
   protected abstract updateJob(queueJob: QueueJobSchema): Promise<void>;
-  protected abstract storeFailedJob(data: Pick<QueueJobFailedSchema, "queue" | "payload" | "failed_at"|"exception">): Promise<void>;
+  protected abstract storeFailedJob(
+    data: Pick<
+      QueueJobFailedSchema,
+      "queue" | "payload" | "failed_at" | "exception"
+    >,
+  ): Promise<void>;
   protected abstract getLastJob(
     queue: string,
   ): Promise<QueueJobSchema | undefined | null>;

@@ -1,7 +1,10 @@
 import { QueueConfig } from "../../src/contracts";
 
 export default {
-  defaultConnection: "database",
+  defaultConnection: "sync",
   connections: {
+    sync: {
+      driver: "sync",
+    }
   },
 } satisfies QueueConfig;

@@ -1,8 +1,10 @@
 import { RuntimeException } from "@lunoxjs/core";
 import Dispatchable from "./Dispatchable";
 import Event from "./facades/Event";
-import Queue from "./facades/Queue";
 import { DispatchableConfig } from "./contracts/job";
+import type { Class, MaybePromise } from "@lunoxjs/core/contracts";
+import type Listener from "./Listener";
+import QueueManager from "./QueueManager";
 
 class DispatchableEvent extends Dispatchable {
   static hasListener = true;
@@ -16,18 +18,27 @@ class DispatchableEvent extends Dispatchable {
     if (!key) {
       throw new RuntimeException(
         this.constructor.name +
-        ".key is not defined. Event should has unique key to be dispatched.",
+          ".key is not defined. Event should has unique key to be dispatched.",
       );
     }
     const listeners = Event.getListener(key);
     for (const listener of listeners) {
-      const listenerInstance = new listener(event);
-      if (listenerInstance.isShouldQueue()) {
-        await Queue.add(listenerInstance, [event], config);
+      if (is_class(listener)) {
+        const listenerInstance = new (listener as unknown as Class<Listener>)(event);
+        if (listenerInstance.isShouldQueue()) {
+          await (await this.getQueueManager()).add(listenerInstance as unknown as Dispatchable, [event], config);
+        } else {
+          await listenerInstance.handle(event);
+        }
       } else {
-        await listenerInstance.handle(event);
+        await (listener as (event: DispatchableEvent)=>MaybePromise<void>).call(this, event);
       }
     }
+  }
+
+  // this to avoid circular dependency
+  protected async getQueueManager(){
+    return app<InstanceType<typeof QueueManager>>((await import("./QueueManager")).default.symbol)
   }
 }
 export default DispatchableEvent;
