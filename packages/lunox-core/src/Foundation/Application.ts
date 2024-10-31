@@ -14,7 +14,7 @@ class Application extends Container {
   protected configFiles: Record<string, any> = {};
 
   public get config(): Repository {
-    return this.make(Repository.symbol);
+    return this.make(Repository);
   }
 
   public responseRenderers: Class<ResponseRenderer>[] = [];
@@ -27,15 +27,15 @@ class Application extends Container {
   ) {
     super();
     /* exported app */
-    global.app = <T extends string | null | any = null>(
-      abstract: T | null = null,
-      params = {},
-    ) => {
+    global.app = (abstract: any, params = {}) => {
+      if (abstract && is_class(abstract) && "symbol" in abstract) {
+        abstract = abstract.symbol as any;
+      }
       if (
         abstract &&
         (typeof abstract == "string" || typeof abstract == "symbol")
       ) {
-        return this.make<T>(abstract, params);
+        return this.make(abstract, params);
       }
       return this as any;
     };

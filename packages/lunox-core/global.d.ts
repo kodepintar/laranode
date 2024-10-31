@@ -12,12 +12,19 @@ import type {
   ResponseRenderer,
   ViewFactory,
   SessionManager,
+  Class,
 } from "./dist";
 declare global {
-  var app: <T extends string | null | any = null>(
+  var app: <
+    T extends string | null | symbol | Class<{ symbol: symbol }> = null,
+  >(
     abstract?: T | string | symbol | null,
     params?: any,
-  ) => T extends null ? Application : T;
+  ) => T extends null
+    ? Application
+    : T extends { symbol: symbol }
+    ? InstanceType<T>
+    : T;
   var base_path: Application["basePath"];
   var root_path: Application["rootPath"];
   var storage_path: Application["storagePath"];
