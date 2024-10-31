@@ -1,9 +1,9 @@
 import { DB } from "@lunoxjs/typeorm";
-import { QueueJobSchema, QueueJobFailedSchema } from "@lunoxjs/event/contracts";
+import { QueueJobSchema, QueueJobFailedSchema, QueueDatabaseConnection } from "@lunoxjs/event/contracts";
 import { BaseQueueConnection } from "@lunoxjs/event";
 import { LessThanOrEqual } from "typeorm";
 
-class Connection extends BaseQueueConnection {
+class Connection extends BaseQueueConnection<QueueDatabaseConnection> {
   protected async storeJob(
     data: Pick<QueueJobSchema, "queue" | "payload" | "available_at">,
   ): Promise<void> {

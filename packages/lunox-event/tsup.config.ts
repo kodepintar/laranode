@@ -7,5 +7,5 @@ export default defineConfig({
   target: "es2022",
   minify:true,
   keepNames: true,
-  external: ["@lunoxjs/core","@lunoxjs/typeorm","bree","typeorm","dayjs"]
+  external: ["@lunoxjs/core","@lunoxjs/typeorm","bree","typeorm","dayjs", "bun:jsc"]
 });

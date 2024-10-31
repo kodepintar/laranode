@@ -6,6 +6,8 @@ import { QueueConfig } from "./contracts/queue";
 import QueueManager from "./QueueManager";
 import { EventListeners } from "./contracts/console";
 import EventManager from "./EventManager";
+import Queue from "./facades/Queue";
+import SyncQueueConnection from "./queue/connections/SyncQueueConnection";
 
 class EventServiceProvider extends ServiceProvider {
   protected listen: EventListeners = {};
@@ -17,11 +19,16 @@ class EventServiceProvider extends ServiceProvider {
 
   private async setupQueue() {
     const config = this.app.config.get<QueueConfig>("queue");
-    const drivers =  Object.values(config.connections).map(c=>c.driver);
-    for(let driver of drivers){
-      if(driver!=='sync'){
-        const {Connection} = await import(`@lunoxjs/event-${driver}`);
-        QueueManager.drivers[driver] = Connection;
+    const drivers = Object.values(config.connections).map((c) => c.driver);
+    QueueManager.drivers["sync"] = SyncQueueConnection;
+    for (let driver of drivers) {
+      if (driver !== "sync") {
+        try {
+          const { Connection } = await import(`@lunoxjs/event-${driver}`);
+          QueueManager.drivers[driver] = Connection;
+        } catch (e) {
+          //pass
+        }
       }
     }
   }

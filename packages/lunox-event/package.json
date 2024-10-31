@@ -33,6 +33,7 @@
   "devDependencies": {
     "@lunoxjs/core": "workspace:*",
     "@lunoxjs/test": "workspace:*",
+    "@types/bun": "^1.1.6",
     "pg": "^8.11.3",
     "typescript": "^5.3.2",
     "vitest": "^0.34.6"

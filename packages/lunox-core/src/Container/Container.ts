@@ -1,4 +1,5 @@
-import type { CallBack, Concrete } from "../Contracts";
+import type { CallBack, Concrete, Class } from "../Contracts";
+import { Router } from "../Routing";
 import { Als } from "../Support/Facades";
 
 interface Binding {
@@ -73,10 +74,22 @@ class Container {
   }
 
   /** Resolve the given type from the container. */
-  make<T = any>(abstract: string | symbol, params = {}): T {
+  make<T extends string | symbol | unknown>(
+    abstract: T | string | symbol,
+    params = {},
+  ): T extends Class<infer C> ? C : T {
+    if (
+      abstract &&
+      is_class(abstract) &&
+      typeof abstract == "function" &&
+      "symbol" in abstract
+    ) {
+      abstract = abstract.symbol as string | symbol;
+    }
+    abstract = abstract as string | symbol;
     try {
       if (this.instances[abstract] && Object.keys(params).length == 0) {
-        return this.instances[abstract] as T;
+        return this.instances[abstract] as any;
       }
       if (this.scopedInstances.includes(abstract)) {
         const scopedInstance = Als.getStore()?.get(abstract);
@@ -88,7 +101,7 @@ class Container {
       const object = this.build<T>(abstract, params);
       this.fireResolvingCallbacks(abstract, object);
       this._resolved[abstract] = true;
-      return object;
+      return object as any;
     } catch (error) {
       let message = "";
       if (error instanceof Error) {
@@ -190,6 +203,7 @@ class Container {
   }
 
   public resolved(abstract: string | symbol) {
+    this.make(Router);
     return !!this._resolved[abstract] || !!this.instances[abstract];
   }
 }

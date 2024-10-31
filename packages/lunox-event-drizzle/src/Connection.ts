@@ -1,9 +1,9 @@
 import { DB } from "@lunoxjs/drizzle";
-import { QueueJobSchema, QueueJobFailedSchema } from "@lunoxjs/event/contracts";
+import { QueueJobSchema, QueueJobFailedSchema, QueueDatabaseConnection } from "@lunoxjs/event/contracts";
 import { BaseQueueConnection } from "@lunoxjs/event";
 import { and, asc, eq, lte } from "drizzle-orm";
 
-class Connection extends BaseQueueConnection {
+class Connection extends BaseQueueConnection<QueueDatabaseConnection> {
   protected async storeJob(
     data: Pick<QueueJobSchema, "queue" | "payload" | "available_at">,
   ): Promise<void> {
