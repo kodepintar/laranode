@@ -1,4 +1,4 @@
-import { serialize } from "v8";
+import { serialize } from "../../utils/serializer";
 import {
   DispatchableConfig,
   QueueConnection,

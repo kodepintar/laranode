@@ -11,6 +11,7 @@ import JobProcessing from "./events/JobProcessing";
 import Event from "./facades/Event";
 import Queue from "./facades/Queue";
 import BaseQueueConnection from "./queue/connections/BaseQueueConnection";
+export * from "./utils/serializer";
 
 export {
   QueueManager,

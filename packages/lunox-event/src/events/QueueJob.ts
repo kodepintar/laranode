@@ -1,4 +1,4 @@
-import { deserialize } from "v8";
+import { deserialize } from "../utils/serializer";
 import { QueueJobSchema } from "../../contracts";
 import DispatchableEvent from "../DispatchableEvent";
 import { QueuePayload } from "../contracts";
