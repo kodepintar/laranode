@@ -1,5 +1,5 @@
 import { hydrateRoot } from "react-dom/client";
-import { createElement } from "react";
+import { createElement, FunctionComponent } from "react";
 import { makeViewTransform, TransformViewClient } from "@lunoxjs/view/client";
 import { createInertiaApp } from "@inertiajs/react";
 /**
@@ -19,7 +19,7 @@ const transformView: TransformViewClient = async (resolver) => {
       return c;
     },
     setup({ el, App, props }) {
-      hydrateRoot(el, createElement(App, props, null));
+      hydrateRoot(el, createElement(App as FunctionComponent<any>, props, null));
     },
     progress: {
       color: ctx.progress_color || "#4B5563",

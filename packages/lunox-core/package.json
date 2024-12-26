@@ -1,6 +1,6 @@
 {
   "name": "@lunoxjs/core",
-  "version": "2.0.0-beta.3.10.0",
+  "version": "2.0.0-beta.3.11.0",
   "description": "Laravel-Flavoured NodeJs framework",
   "bin": {
     "lunox": "./bin/lunox.cjs"
@@ -78,8 +78,8 @@
     "@types/node": "^20.10.0",
     "@types/pluralize": "^0.0.33",
     "@types/polka": "^0.5.7",
-    "@types/react": "^18.2.39",
-    "@types/react-dom": "^18.2.17",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/react-helmet": "^6.1.9",
     "@types/supertest": "^2.0.16",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
@@ -88,8 +88,8 @@
     "glob": "^10.3.10",
     "mysql": "^2.18.1",
     "prettier": "^3.1.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-helmet": "^6.1.0",
     "sqlite3": "^5.1.6",
     "supertest": "^6.3.3",
